@@ -1,5 +1,5 @@
 # コミット（push）と Pull Request のたびに静的検査・単体テスト・e2e を走らせる。
-# デプロイは行わない（デプロイは deploy.yml を手動実行する）。
+# デプロイは行わない（デプロイは Vercel の Git 連携が main への push を検知して自動で行う）。
 name: CI
 
 on:

@@ -62,32 +62,21 @@ DB・Docker・メールサーバーは不要。
 
 ## Vercel へのデプロイ
 
-デプロイは **GitHub Actions の手動実行（Deploy (Vercel)）のみ** で行う。`main` への push や Pull Request では Vercel の自動デプロイは走らない（[vercel.json](vercel.json) の `git.deploymentEnabled: false` で Git 連携の自動デプロイを止めている）。
+Vercel の Git 連携による **自動デプロイ** で運用する。`main` に push（マージ）すると本番へ、それ以外のブランチや Pull Request はプレビュー URL へ Vercel が自動でデプロイする。Next.js として自動検出されるため追加設定は不要。
 
-1. Vercel でリポジトリをインポートする（Framework Preset: Next.js）。Git 連携は環境変数・プロジェクト設定の取り込み元として残す
+1. Vercel でリポジトリをインポートする（Framework Preset: Next.js）
 2. 環境変数 `NEXT_PUBLIC_SITE_URL` に本番 URL（例: `https://yorunimahouwokakerarete.vercel.app`）を設定する
-3. GitHub の Actions タブ → Deploy (Vercel) →「Run workflow」で `production` を選んで実行する
+3. `main` に push すればデプロイされる
 
-push しただけでは本番は更新されないので、リリースしたいタイミングで手動実行する。Route Handler・Server Action は持たず、DB・秘密情報・永続ストレージも使わない。
+Route Handler・Server Action は持たず、DB・秘密情報・永続ストレージも使わない。
 
 ## GitHub Actions
 
 | ワークフロー | トリガー | 内容 |
 |---|---|---|
 | [CI](.github/workflows/ci.yml) | 全ブランチへの push・Pull Request | 型チェック・Biome・markuplint・Vitest、Playwright e2e（a11y 含む）。失敗時は Playwright レポートを artifact に保存 |
-| [Deploy (Vercel)](.github/workflows/deploy.yml) | 手動（Actions タブ →「Run workflow」） | `production` / `preview` を選んで Vercel へデプロイ。既定ではデプロイ前に `npm run validate` を実行 |
 
-手動デプロイには次の Secrets が必要（リポジトリの Settings → Secrets and variables → Actions）:
-
-| Secret | 取得方法 |
-|---|---|
-| `VERCEL_TOKEN` | Vercel のアカウント設定 → Tokens で発行。プロジェクトがチーム配下なら **そのチームを Scope に選んで** 発行する（個人 Scope のトークンでは `vercel pull` が「Could not retrieve Project Settings」で失敗する） |
-| `VERCEL_ORG_ID` | ローカルで `npx vercel link` を実行すると生成される `.vercel/project.json`（または `.vercel/repo.json`）の `orgId`。チーム配下なら `team_` で始まる |
-| `VERCEL_PROJECT_ID` | 同 `projectId`（`repo.json` では `projects[].id`）。`prj_` で始まる |
-
-Secret は `gh secret set VERCEL_TOKEN --body "<値>"` のように `--body` で登録すると改行が混ざらない。ワークフローは実行の最初に Secret の未設定・空白混入・トークンの権限（`vercel whoami` / `vercel teams ls`）を確認して、問題があれば日本語で理由を出して止まる。
-
-Vercel の Git 連携による自動デプロイは `vercel.json` で無効化してあり、デプロイ経路はこのワークフローだけ。push ごとの自動デプロイに戻したい場合は `vercel.json` の `git.deploymentEnabled` を削除する。
+デプロイは GitHub Actions からは行わず、Vercel の Git 連携に任せる（上記「Vercel へのデプロイ」）。GitHub Actions 側に Vercel のトークン等の Secret は不要。
 
 ## テスト・検証
 

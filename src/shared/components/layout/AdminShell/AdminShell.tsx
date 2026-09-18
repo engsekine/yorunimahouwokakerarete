@@ -51,8 +51,9 @@ export const AdminShell = ({ defaultCollapsed, children }: AdminShellProps) => {
                 {/* モバイル用サイドバー（Sheet） */}
                 <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                     <SheetContent side="left" className="w-64 p-0">
-                        <SheetHeader>
-                            <SheetTitle>{SITE_NAME} メニュー</SheetTitle>
+                        {/* タイトルはサイト名のみをメニュー（先頭「ホーム」）の上に置く。右上の閉じるボタン（absolute）と重ならないよう右に余白を取り、長い名前は折り返す */}
+                        <SheetHeader className="pr-12">
+                            <SheetTitle className="break-all">{SITE_NAME}</SheetTitle>
                         </SheetHeader>
                         <AdminSidebar onNavigate={() => setMobileOpen(false)} />
                     </SheetContent>
