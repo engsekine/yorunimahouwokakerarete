@@ -84,8 +84,10 @@
             "postcss": "^8.5.28"
         },
         "@markuplint/parser-utils": {
-            "uuid": "^13.0.1"
+            "uuid": "^13.0.1",
+            "@types/uuid": "10.0.0"
         },
+        "@ungap/structured-clone": "^1.4.0",
         "postcss-selector-parser": "^7.1.6",
         "esbuild": "^0.28.2",
         "valibot": "^1.4.2",
@@ -95,7 +97,7 @@
         "node": "24.18.0"
     },
     "engines": {
-        "node": ">=22.0.0",
+        "node": "24.x",
         "npm": ">=10.0.0"
     }
 }

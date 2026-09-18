@@ -1,0 +1,83 @@
+# コミット（push）と Pull Request のたびに静的検査・単体テスト・e2e を走らせる。
+# デプロイは行わない（デプロイは deploy.yml を手動実行する）。
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+# 同じブランチへ連続 push したとき、古い実行は打ち切って最新だけを走らせる
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # ログを英語に固定し、Next.js のテレメトリ送信を止める
+  NEXT_TELEMETRY_DISABLED: 1
+  CI: true
+
+jobs:
+  validate:
+    name: 型チェック・lint・単体テスト
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: 依存パッケージをインストール
+        run: npm ci
+
+      # typedRoutes の型（.next/types）が無いと tsc が通らないため先に生成する
+      - name: Next.js の型を生成
+        run: npx next typegen
+
+      - name: 型チェック
+        run: npm run type-check
+
+      - name: Biome（lint / format）
+        run: npm run check
+
+      - name: markuplint
+        run: npm run lint:markup
+
+      - name: Vitest 単体テスト
+        run: npm run test
+
+  e2e:
+    name: Playwright e2e・a11y
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: 依存パッケージをインストール
+        run: npm ci
+
+      - name: Playwright（Chromium）をインストール
+        run: npx playwright install --with-deps chromium
+
+      # playwright.config.ts が dev サーバー（NEXT_DIST_DIR=.next-playwright）を自動起動する
+      - name: e2e テスト（tests/ 配下すべて・a11y 含む）
+        run: npm run test:e2e
+
+      - name: レポートを保存（失敗時のみ）
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

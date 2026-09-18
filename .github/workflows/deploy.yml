@@ -1,0 +1,89 @@
+# Vercel への手動デプロイ。GitHub の Actions タブから「Run workflow」で実行する。
+#
+# 必要な Secrets（リポジトリの Settings → Secrets and variables → Actions）:
+#   VERCEL_TOKEN       Vercel のアカウント設定 → Tokens で発行
+#   VERCEL_ORG_ID      `npx vercel link` 後に生成される .vercel/project.json の orgId
+#   VERCEL_PROJECT_ID  同 projectId
+#
+# ビルドは GitHub Actions 側で行い（vercel build）、成果物だけを Vercel へ送る（vercel deploy --prebuilt）。
+# 環境変数（NEXT_PUBLIC_SITE_URL 等）は Vercel プロジェクト側の設定を `vercel pull` で取り込む。
+name: Deploy (Vercel)
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: デプロイ先
+        type: choice
+        required: true
+        default: production
+        options:
+          - production
+          - preview
+      run_tests:
+        description: デプロイ前に型チェック・lint・単体テストを実行する
+        type: boolean
+        required: true
+        default: true
+
+# 同時に 2 つのデプロイが走らないようにする（後発は待つ）
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  NEXT_TELEMETRY_DISABLED: 1
+  CI: true
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy:
+    name: ${{ inputs.environment }} へデプロイ
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: 依存パッケージをインストール
+        run: npm ci
+
+      - name: Next.js の型を生成
+        if: ${{ inputs.run_tests }}
+        run: npx next typegen
+
+      - name: 型チェック・lint・単体テスト
+        if: ${{ inputs.run_tests }}
+        run: npm run validate
+
+      - name: Vercel CLI をインストール
+        run: npm install --global vercel@latest
+
+      - name: Vercel のプロジェクト設定・環境変数を取り込む
+        run: vercel pull --yes --environment=${{ inputs.environment }} --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: ビルド
+        run: vercel build ${{ inputs.environment == 'production' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: デプロイ
+        id: deploy
+        run: |
+          url=$(vercel deploy --prebuilt ${{ inputs.environment == 'production' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+          {
+            echo "## デプロイ完了（${{ inputs.environment }}）"
+            echo
+            echo "- URL: ${url}"
+            echo "- コミット: \`${GITHUB_SHA}\`（${GITHUB_REF_NAME}）"
+          } >> "$GITHUB_STEP_SUMMARY"

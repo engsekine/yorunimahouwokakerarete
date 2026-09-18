@@ -58,17 +58,34 @@ DB・Docker・メールサーバーは不要。
 
 | 変数 | 用途 | 既定 |
 |---|---|---|
-| `NEXT_PUBLIC_SITE_URL` | metadata / sitemap の絶対 URL | `http://localhost:3000` |
+| `NEXT_PUBLIC_SITE_URL` | metadata / sitemap の絶対 URL（`https://example.com` の形。スキーム無しのドメインだけでも `https://` を補って解釈し、不正な値は既定値に落とす） | `http://localhost:3000` |
 
 ## Vercel へのデプロイ
 
 Next.js として自動検出されるため追加設定は不要。
 
 1. Vercel でリポジトリをインポートする（Framework Preset: Next.js）
-2. 環境変数 `NEXT_PUBLIC_SITE_URL` に本番ドメインを設定する
+2. 環境変数 `NEXT_PUBLIC_SITE_URL` に本番 URL（例: `https://yorunimahouwokakerarete.vercel.app`）を設定する
 3. デプロイ
 
 Route Handler・Server Action は持たず、DB・秘密情報・永続ストレージも使わない。
+
+## GitHub Actions
+
+| ワークフロー | トリガー | 内容 |
+|---|---|---|
+| [CI](.github/workflows/ci.yml) | 全ブランチへの push・Pull Request | 型チェック・Biome・markuplint・Vitest、Playwright e2e（a11y 含む）。失敗時は Playwright レポートを artifact に保存 |
+| [Deploy (Vercel)](.github/workflows/deploy.yml) | 手動（Actions タブ →「Run workflow」） | `production` / `preview` を選んで Vercel へデプロイ。既定ではデプロイ前に `npm run validate` を実行 |
+
+手動デプロイには次の Secrets が必要（リポジトリの Settings → Secrets and variables → Actions）:
+
+| Secret | 取得方法 |
+|---|---|
+| `VERCEL_TOKEN` | Vercel のアカウント設定 → Tokens で発行 |
+| `VERCEL_ORG_ID` | ローカルで `npx vercel link` を実行すると生成される `.vercel/project.json` の `orgId` |
+| `VERCEL_PROJECT_ID` | 同 `projectId` |
+
+Vercel 側の Git 連携（push ごとの自動デプロイ）と併用すると二重にデプロイされる。手動デプロイのみにしたい場合は、Vercel のプロジェクト設定 → Git で自動デプロイを無効にするか、`vercel.json` に `{ "git": { "deploymentEnabled": false } }` を置く。
 
 ## テスト・検証
 
