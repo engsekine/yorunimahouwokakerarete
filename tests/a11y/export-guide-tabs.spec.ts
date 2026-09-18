@@ -13,6 +13,12 @@ const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
 const tablist = (page: Page) => page.getByRole('tablist', { name: 'エクスポート手順の端末' });
 
+/**
+ * タブに対応する tabpanel。Base UI はタブ切替のアニメーション中、旧パネル（inert）と新パネルを
+ * 同時に DOM へ置くため、名前を指定せずに getByRole('tabpanel') すると strict mode 違反で flaky になる
+ */
+const tabpanel = (page: Page, name: string) => page.getByRole('tabpanel', { name });
+
 test.describe('ExportGuide タブ切り替え a11y', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/imports');
@@ -25,7 +31,7 @@ test.describe('ExportGuide タブ切り替え a11y', () => {
 
         await expect(pcTab).toHaveAttribute('aria-selected', 'true');
         await expect(spTab).toHaveAttribute('aria-selected', 'false');
-        await expect(page.getByRole('tabpanel')).toContainText('アカウントセンター] をクリックしてから');
+        await expect(tabpanel(page, 'PC（ブラウザ）')).toContainText('アカウントセンター] をクリックしてから');
     });
 
     test('クリックでタブを切り替えると tabpanel の内容も切り替わる', async ({ page }) => {
@@ -34,7 +40,7 @@ test.describe('ExportGuide タブ切り替え a11y', () => {
         await spTab.click();
 
         await expect(spTab).toHaveAttribute('aria-selected', 'true');
-        await expect(page.getByRole('tabpanel')).toContainText('右上の [≡]（メニュー）をタップして');
+        await expect(tabpanel(page, 'スマートフォン（アプリ）')).toContainText('右上の [≡]（メニュー）をタップして');
     });
 
     test('矢印キー（ArrowRight/ArrowLeft）でタブが移動し、フォーカスが追従する', async ({ page }) => {
@@ -47,18 +53,20 @@ test.describe('ExportGuide タブ切り替え a11y', () => {
         await page.keyboard.press('ArrowRight');
         await expect(spTab).toBeFocused();
         await expect(spTab).toHaveAttribute('aria-selected', 'true');
-        await expect(page.getByRole('tabpanel')).toContainText('右上の [≡]（メニュー）をタップして');
+        await expect(tabpanel(page, 'スマートフォン（アプリ）')).toContainText('右上の [≡]（メニュー）をタップして');
 
         await page.keyboard.press('ArrowLeft');
         await expect(pcTab).toBeFocused();
         await expect(pcTab).toHaveAttribute('aria-selected', 'true');
-        await expect(page.getByRole('tabpanel')).toContainText('アカウントセンター] をクリックしてから');
+        await expect(tabpanel(page, 'PC（ブラウザ）')).toContainText('アカウントセンター] をクリックしてから');
     });
 
     test('スマートフォン手順タブに切り替えた状態でも WCAG 2.1 AA 違反なし', async ({ page }) => {
         const spTab = tablist(page).getByRole('tab', { name: 'スマートフォン（アプリ）' });
         await spTab.click();
-        await expect(page.getByRole('tabpanel')).toContainText('右上の [≡]（メニュー）をタップして');
+        await expect(tabpanel(page, 'スマートフォン（アプリ）')).toContainText('右上の [≡]（メニュー）をタップして');
+        // 旧パネル（inert・退場アニメーション中）が DOM から消えてから計測する
+        await expect(page.getByRole('tabpanel')).toHaveCount(1);
 
         const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
         expect(results.violations).toEqual([]);
