@@ -62,13 +62,13 @@ DB・Docker・メールサーバーは不要。
 
 ## Vercel へのデプロイ
 
-Next.js として自動検出されるため追加設定は不要。
+デプロイは **GitHub Actions の手動実行（Deploy (Vercel)）のみ** で行う。`main` への push や Pull Request では Vercel の自動デプロイは走らない（[vercel.json](vercel.json) の `git.deploymentEnabled: false` で Git 連携の自動デプロイを止めている）。
 
-1. Vercel でリポジトリをインポートする（Framework Preset: Next.js）
+1. Vercel でリポジトリをインポートする（Framework Preset: Next.js）。Git 連携は環境変数・プロジェクト設定の取り込み元として残す
 2. 環境変数 `NEXT_PUBLIC_SITE_URL` に本番 URL（例: `https://yorunimahouwokakerarete.vercel.app`）を設定する
-3. デプロイ
+3. GitHub の Actions タブ → Deploy (Vercel) →「Run workflow」で `production` を選んで実行する
 
-Route Handler・Server Action は持たず、DB・秘密情報・永続ストレージも使わない。
+push しただけでは本番は更新されないので、リリースしたいタイミングで手動実行する。Route Handler・Server Action は持たず、DB・秘密情報・永続ストレージも使わない。
 
 ## GitHub Actions
 
@@ -81,11 +81,13 @@ Route Handler・Server Action は持たず、DB・秘密情報・永続ストレ
 
 | Secret | 取得方法 |
 |---|---|
-| `VERCEL_TOKEN` | Vercel のアカウント設定 → Tokens で発行 |
-| `VERCEL_ORG_ID` | ローカルで `npx vercel link` を実行すると生成される `.vercel/project.json` の `orgId` |
-| `VERCEL_PROJECT_ID` | 同 `projectId` |
+| `VERCEL_TOKEN` | Vercel のアカウント設定 → Tokens で発行。プロジェクトがチーム配下なら **そのチームを Scope に選んで** 発行する（個人 Scope のトークンでは `vercel pull` が「Could not retrieve Project Settings」で失敗する） |
+| `VERCEL_ORG_ID` | ローカルで `npx vercel link` を実行すると生成される `.vercel/project.json`（または `.vercel/repo.json`）の `orgId`。チーム配下なら `team_` で始まる |
+| `VERCEL_PROJECT_ID` | 同 `projectId`（`repo.json` では `projects[].id`）。`prj_` で始まる |
 
-Vercel 側の Git 連携（push ごとの自動デプロイ）と併用すると二重にデプロイされる。手動デプロイのみにしたい場合は、Vercel のプロジェクト設定 → Git で自動デプロイを無効にするか、`vercel.json` に `{ "git": { "deploymentEnabled": false } }` を置く。
+Secret は `gh secret set VERCEL_TOKEN --body "<値>"` のように `--body` で登録すると改行が混ざらない。ワークフローは実行の最初に Secret の未設定・空白混入・トークンの権限（`vercel whoami` / `vercel teams ls`）を確認して、問題があれば日本語で理由を出して止まる。
+
+Vercel の Git 連携による自動デプロイは `vercel.json` で無効化してあり、デプロイ経路はこのワークフローだけ。push ごとの自動デプロイに戻したい場合は `vercel.json` の `git.deploymentEnabled` を削除する。
 
 ## テスト・検証
 
