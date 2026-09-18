@@ -42,7 +42,7 @@ shadcn/ui のトークン体系を採用。`src/app/theme.css` の `:root` に `
 
 - **light / dark**: `.dark` クラスを祖先に付けると切替（`@custom-variant dark`）
 - **角丸スケール**: `--radius` を基準に `rounded-sm` 〜 `rounded-4xl` を生成
-- **フォント**: アプリ本体は `Geist`（`next/font/google` 経由）
+- **フォント**: 本文は `Noto Sans JP`（アプリ本体は `next/font/google` でセルフホスト。Storybook は `preview-head.html` で Google Fonts から読み込み）、等幅は `Geist Mono`
 
 ## コンポーネントの書き方
 

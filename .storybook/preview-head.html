@@ -1,4 +1,12 @@
+<!-- アプリ本体は next/font で Noto Sans JP をセルフホストするが、Storybook は layout.tsx を通らないため Google Fonts から読み込んで同じ CSS 変数を定義する -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --font-noto-sans-jp: 'Noto Sans JP';
+  }
+
   /* Story キャンバスの境界線 */
   .sbdocs-preview {
     border: 1px solid var(--border) !important;
