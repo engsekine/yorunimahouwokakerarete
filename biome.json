@@ -1,0 +1,148 @@
+{
+    "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+    "vcs": {
+        "enabled": true,
+        "clientKind": "git",
+        "useIgnoreFile": true
+    },
+    "files": {
+        "includes": [
+            "**/*.ts",
+            "**/*.tsx",
+            "**/*.js",
+            "**/*.jsx",
+            "**/*.mjs",
+            "**/*.cjs",
+            "**/*.mts",
+            "**/*.cts",
+            "**/*.json",
+            "!**/.next",
+            "!**/.next-playwright",
+            "!**/node_modules",
+            "!**/storybook-static",
+            "!**/public/mockServiceWorker.js",
+            "!**/playwright-report",
+            "!**/test-results",
+            "!**/coverage",
+            "!**/dist",
+            "!**/build",
+            "!**/*.tsbuildinfo",
+            "!**/next-env.d.ts",
+            "!.specify"
+        ]
+    },
+    "formatter": {
+        "enabled": true,
+        "indentStyle": "space",
+        "indentWidth": 4,
+        "lineWidth": 120,
+        "lineEnding": "lf"
+    },
+    "javascript": {
+        "formatter": {
+            "quoteStyle": "single",
+            "jsxQuoteStyle": "double",
+            "trailingCommas": "all",
+            "semicolons": "always",
+            "arrowParentheses": "always",
+            "bracketSpacing": true,
+            "bracketSameLine": false,
+            "quoteProperties": "asNeeded"
+        }
+    },
+    "json": {
+        "formatter": {
+            "enabled": true,
+            "indentWidth": 4,
+            "trailingCommas": "none"
+        }
+    },
+    "assist": {
+        "enabled": true,
+        "actions": {
+            "source": {
+                "organizeImports": "on"
+            }
+        }
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "recommended": true,
+            "suspicious": {
+                "noExplicitAny": "error",
+                "noDoubleEquals": "error",
+                "noConsole": {
+                    "level": "error",
+                    "options": { "allow": ["warn", "error"] }
+                },
+                "noEmptyBlockStatements": "error",
+                "noImplicitAnyLet": "error",
+                "noArrayIndexKey": "warn"
+            },
+            "style": {
+                "useConst": "error",
+                "useTemplate": "error",
+                "useSelfClosingElements": "error",
+                "noParameterAssign": "error",
+                "useShorthandAssign": "error",
+                "useImportType": "error",
+                "useExportType": "error",
+                "noNonNullAssertion": "warn"
+            },
+            "correctness": {
+                "noUnusedVariables": {
+                    "level": "error",
+                    "options": {
+                        "ignoreRestSiblings": true
+                    }
+                },
+                "noUnusedImports": "error",
+                "useExhaustiveDependencies": "error",
+                "useHookAtTopLevel": "error",
+                "useJsxKeyInIterable": "error"
+            },
+            "complexity": {
+                "useOptionalChain": "error",
+                "useArrowFunction": "error",
+                "noUselessTypeConstraint": "error",
+                "useLiteralKeys": "off"
+            },
+            "a11y": {
+                "recommended": true,
+                "noAutofocus": "warn"
+            },
+            "performance": {
+                "noImgElement": "error"
+            },
+            "nursery": {
+                "useSortedClasses": {
+                    "level": "warn",
+                    "options": {
+                        "attributes": ["className", "class"],
+                        "functions": ["cn", "cva", "clsx", "twMerge"]
+                    }
+                }
+            }
+        }
+    },
+    "overrides": [
+        {
+            "includes": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "**/__tests__/**"],
+            "linter": {
+                "rules": {
+                    "suspicious": {
+                        "noConsole": "off",
+                        "noExplicitAny": "off"
+                    }
+                }
+            }
+        },
+        {
+            "includes": ["src/components/ui/**"],
+            "linter": {
+                "enabled": false
+            }
+        }
+    ]
+}

@@ -1,0 +1,99 @@
+{
+    "effortLevel": "high",
+    "mcpServers": {
+        "context7": {
+            "command": "npx",
+            "args": ["-y", "@context7/mcp-server"]
+        },
+        "next-devtools": {
+            "command": "npx",
+            "args": ["-y", "next-devtools-mcp"]
+        },
+        "storybook": {
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-storybook"]
+        },
+        "drawio": {
+            "command": "npx",
+            "args": ["-y", "@drawio/mcp"]
+        },
+        "figma": {
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-figma"]
+        }
+    },
+    "permissions": {
+        "defaultMode": "acceptEdits",
+        "allow": ["Bash(*)", "Edit(*)", "Write(*)", "Read(*)", "WebFetch(*)"],
+        "deny": [
+            "Bash(rm -rf:*)",
+            "Bash(rm -fr:*)",
+            "Bash(sudo:*)",
+            "Bash(curl:*)",
+            "Bash(wget:*)",
+            "Bash(chmod 777:*)",
+            "Bash(dd:*)",
+            "Bash(mkfs:*)",
+            "Bash(git push --force:*)",
+            "Bash(git push -f:*)",
+            "Bash(git reset --hard:*)",
+            "Bash(* --registry:*)",
+            "Read(**/.env)",
+            "Read(**/.env.*)",
+            "Read(**/secrets/**)",
+            "Read(**/*.pem)",
+            "Read(**/*.key)",
+            "Write(**/.env)",
+            "Write(**/.env.*)",
+            "Write(/etc/**)",
+            "Write(~/.ssh/**)"
+        ]
+    },
+    "hooks": {
+        "UserPromptSubmit": [
+            {
+                "matcher": "",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash .claude/hooks/log.sh"
+                    }
+                ]
+            }
+        ],
+        "Stop": [
+            {
+                "matcher": "",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash .claude/hooks/stop.sh"
+                    }
+                ]
+            }
+        ],
+        "PostToolUse": [
+            {
+                "matcher": "Edit|Write",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash .claude/hooks/lint-check.sh"
+                    },
+                    {
+                        "type": "command",
+                        "command": "bash .claude/hooks/suggest-test-gen.sh"
+                    },
+                    {
+                        "type": "command",
+                        "command": "bash .claude/hooks/suggest-test-update.sh"
+                    },
+                    {
+                        "type": "command",
+                        "command": "bash .claude/hooks/suggest-spec-sync.sh"
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -1,0 +1,10 @@
+@layer base {
+    :root {
+        scrollbar-gutter: stable;
+    }
+
+    :root:has(dialog[open]) {
+        overflow: clip;
+        scrollbar-gutter: auto;
+    }
+}

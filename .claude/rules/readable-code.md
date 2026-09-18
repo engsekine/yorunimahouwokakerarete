@@ -1,0 +1,506 @@
+# リーダブルコード - 命名規則と要点整理
+
+## 基本原則
+
+***読みやすい名前 = その名前が正確で曖昧でないこと***
+
+良い名前とは:
+- 誤解されにくい
+- 意味が伝わりやすい
+- 何がどうなるか予測しやすい
+
+## 第I部 名前の付け方
+
+### 2. 名前に情報を詰め込む
+
+#### 2.1 明確な名前を選ぶ
+- 汎用的な名前は避ける
+- 具体的な名前を使う
+
+```python
+# 悪い例
+def GetPage(url):
+    ...
+
+# 良い例
+def FetchPage(url):      # ネットワークから取得する
+def DownloadPage(url):   # ダウンロードする
+```
+
+#### 2.2 汎用的な名前を避ける、または使うべき場面を知る
+
+**tmp**
+- 一時的な変数にのみ使う
+- 悪い例: ただ名前を付けるのが面倒で使う
+
+```python
+# 悪い例
+tmp = user.name()
+tmp += " " + user.phone_number()
+tmp += " " + user.email()
+...
+template.set("user_info", tmp)
+
+# 良い例
+user_info = user.name()
+user_info += " " + user.phone_number()
+user_info += " " + user.email()
+...
+template.set("user_info", user_info)
+```
+
+**ループイテレータ**
+- i, j, k だけでは複雑なループでは分かりにくい
+- ただしスコープが短い場合は問題ない
+
+```python
+# スコープが長い場合
+for club_i in range(len(clubs)):
+    for member_i in range(len(clubs[club_i].members)):
+        for user_i in range(len(users)):
+            if clubs[club_i].members[member_i] == users[user_i]:
+                print("ユーザ[%d]はクラブ[%d]のメンバー[%d]です" % (user_i, club_i, member_i))
+```
+
+#### 2.3 名前に情報を追加する
+
+**単位を付加する**
+```javascript
+// 悪い例
+var start = (new Date()).getTime();
+...
+var elapsed = (new Date()).getTime() - start;
+document.writeln("読み込み時間: " + elapsed + " 秒");
+
+// 良い例
+var start_ms = (new Date()).getTime();
+...
+var elapsed_ms = (new Date()).getTime() - start_ms;
+document.writeln("読み込み時間: " + elapsed_ms / 1000 + " 秒");
+```
+
+**重要な属性を追加する**
+
+| 状況 | 変数名 | 改善後 |
+|------|--------|--------|
+| 平文のパスワード(暗号化前) | password | plaintext_password |
+| エスケープされていないコメント(表示前にエスケープが必要) | comment | unescaped_comment |
+| htmlに変換済みのデータ | html | html_utf8 |
+| エンコード済みのURLデータ | data | data_urlenc |
+
+#### 2.4 名前の長さを決める
+
+- スコープが小さければ短い名前でよい
+- 長い名前を恐れる必要はない(エディタの補完がある)
+- 略語はチーム全員に通じるものだけ使う
+- 不要な単語を捨てる
+
+```python
+# 改善例
+ConvertToString()    → ToString()
+DoServeLoop()        → ServeLoop()
+```
+
+### 3. 誤解されない名前
+
+**名前のせいで他の意味に取れないか?と自問する**
+
+#### 3.1 上限値/下限値には max と min を使う
+
+```python
+CART_TOO_BIG_LIMIT = 10
+
+# この場合、10が含まれるか含まれないか不明
+if shopping_cart.num_items() >= CART_TOO_BIG_LIMIT:
+    Error("カートの商品数が多すぎます")
+
+# 改善例
+MAX_ITEMS_IN_CART = 10
+
+if shopping_cart.num_items() > MAX_ITEMS_IN_CART:
+    Error("カートの商品数が多すぎます")
+```
+
+#### 3.2 範囲を指定するときは first と last を使う
+
+```python
+set.PrintKeys(start, stop)  # stopは含む?含まない?
+
+# 改善例(包含的)
+set.PrintKeys(first, last)
+```
+
+#### 3.3 包含/排他的範囲には begin と end を使う
+
+```python
+PrintEventsInRange("OCT 16 12:00am", "OCT 17 12:00am")  # 17日は含む?
+
+# 改善例
+PrintEventsInRange("OCT 16 12:00am", stop_date="OCT 17 12:00am")  # 明示的に排他的
+```
+
+#### 3.4 ブール値には is, has, can, should などを使う
+
+```python
+# 悪い例
+bool read_password = true
+
+# 良い例
+bool need_password = true
+bool user_is_authenticated = true
+```
+
+**否定形を避ける**
+```python
+# 悪い例
+bool disable_ssl = false
+
+# 良い例
+bool use_ssl = true
+```
+
+## 第II部 コメントと制御フローの改善
+
+### 5. コメントすべきことを知る
+
+#### コメントすべきでないこと
+- コードからすぐに分かることは書かない
+- 悪い名前をコメントで補わない(名前を改善する)
+
+```python
+# 悪い例
+# intをstringに変換する
+def ToInt(s: str) -> int:
+    ...
+
+# 自身のカウントを返す
+def GetCount(self) -> int:
+    return self.count
+```
+
+#### コメントすべきこと
+1. **自分の考えを記録する**
+```python
+# このデータはハッシュテーブルよりツリーの方が速い
+# TODO: この処理はキャッシュしておいた方がいいかもしれない
+```
+
+2. **定数にコメントを付ける**
+- **TODO**: あとで対処する
+- **FIXME**: 既知のバグがある
+- **HACK**: あまりきれいではない解決策
+- **XXX**: 危険! 大きな問題がある
+
+3. **定数に背景情報を付加する**
+```python
+NUM_THREADS = 8  # 値は>=2*num_processors が望ましい
+```
+
+### 6. コメントは正確で簡潔に
+
+- コメントは対象の情報量に対して簡潔にする
+- 曖昧な代名詞は避ける
+- 歯切れのよい文章を書く
+- 例示が有効な場合は活用する
+- 略語を使うなら誰もが理解できるものだけ
+- 入出力の例をコメントで示す
+- コードの意図をコメントで伝える
+
+```python
+# 悪い例
+def Connect(timeout, use_encryption): ...
+Connect(10, False)
+
+# 良い例
+def Connect(timeout, use_encryption): ...
+Connect(timeout=10, use_encryption=False)
+```
+
+### 7. 制御フローを読みやすくする
+
+#### 7.1 条件式の並び順
+
+```python
+# 自然な並び順
+if (length >= 10)         # 比較対象(調べる値) ≧ 比較値(比較される値)
+if (received_bytes < BUFFER_SIZE)
+if (10 <= length)         # 不自然(ヨーダ記法)
+```
+
+**ヒント**: 身の回りの日本語で「身長が10cm以上なら...」
+
+#### 7.2 if/else ブロックの並び順
+1. 条件は肯定形を優先する
+2. 単純な処理を先に書く
+3. 目立つ条件・関心を引く条件を先に書く
+
+```python
+# 良い例
+if (a == b):
+    # case one ...
+else:
+    # case two ...
+
+# 悪い例
+if (a != b):
+    # case two ...
+else:
+    # case one ...
+```
+
+#### 7.3 三項演算子
+
+**基本的には if/else を使う方が読みやすい**
+
+```python
+# 三項演算子が適切な場合(簡潔で読みやすい)
+time_str = hour >= 12 ? "pm" : "am"
+
+# if/else の方がよい場合(行数が増えても読みやすい)
+if (hour >= 12):
+    time_str = "pm"
+else:
+    time_str = "am"
+```
+
+#### 7.4 do/while を避ける
+
+```python
+# 悪い例(条件が下にある)
+do {
+    # 処理
+} while (condition)
+
+# 良い例(条件が上にある)
+while (condition) {
+    # 処理
+}
+```
+
+#### 7.5 早期リターンする
+
+```python
+# ガード節を使って早期リターン
+if not user:
+    return False
+
+if not user.is_valid():
+    return False
+
+# メイン処理
+...
+```
+
+#### 7.6 goto を避ける(例外: クリーンアップ処理)
+
+### 8. 巨大な式を分割する
+
+#### 8.1 説明変数
+
+```python
+# 悪い例
+if (line.split(':')[0].strip() == "root"):
+    ...
+
+# 良い例
+username = line.split(':')[0].strip()
+if (username == "root"):
+    ...
+```
+
+#### 8.2 要約変数
+
+```python
+# 悪い例
+if (request.user.id == document.owner_id):
+    # ユーザーはこの文書を編集できる
+if (request.user.id != document.owner_id):
+    # 文書は読み取り専用
+
+# 良い例
+user_owns_document = (request.user.id == document.owner_id)
+if (user_owns_document):
+    # ユーザーはこの文書を編集できる
+if not user_owns_document:
+    # 文書は読み取り専用
+```
+
+#### 8.3 ド・モルガンの法則を使う
+
+```python
+# 複雑で読みにくい
+if not (file_exists and !is_protected):
+    ...
+
+# ド・モルガンの法則で簡潔に
+if not file_exists or is_protected:
+    ...
+```
+
+### 9. 変数と読みやすさ
+
+#### 9.1 変数を削減する
+1. **役に立たない一時変数**
+```python
+# 悪い例
+now = datetime.datetime.now()
+root_message.last_view_time = now
+
+# 良い例
+root_message.last_view_time = datetime.datetime.now()
+```
+
+2. **中間結果を削減する**
+```python
+# 悪い例
+var remove_one = function (array, value_to_remove) {
+    var index_to_remove = null;
+    for (var i = 0; i < array.length; i++) {
+        if (array[i] === value_to_remove) {
+            index_to_remove = i;
+            break;
+        }
+    }
+    if (index_to_remove !== null) {
+        array.splice(index_to_remove, 1);
+    }
+};
+
+# 良い例
+var remove_one = function (array, value_to_remove) {
+    for (var i = 0; i < array.length; i++) {
+        if (array[i] === value_to_remove) {
+            array.splice(i, 1);
+            return;
+        }
+    }
+};
+```
+
+3. **制御フロー変数を削減する**
+```python
+# 悪い例
+boolean done = false;
+while (/* 条件 */ && !done) {
+    if (...) {
+        done = true;
+        continue;
+    }
+}
+
+# 良い例
+while (/* 条件 */) {
+    if (...) {
+        break;
+    }
+}
+```
+
+#### 9.2 変数のスコープを縮める
+- グローバル変数を避ける
+- 全ての変数のスコープをなるべく小さくする
+- 変数の定義を使う箇所の近くにする
+
+```javascript
+// 悪い例
+var submitted = false;
+var image_url = "image.png";
+var HandleFormSubmission = function() {
+    submitted = true;
+    var url = "http://example.com";
+    ...
+    DownloadImage(image_url);
+};
+
+// 良い例
+var HandleFormSubmission = function() {
+    var submitted = true;  // 関数スコープ内に移動
+    var url = "http://example.com";
+    var image_url = "image.png";  // 使う箇所の近くで定義
+    ...
+    DownloadImage(image_url);
+};
+```
+
+#### 9.3 一度だけ書き込む変数を使う
+- C++の`const`、Javaの`final`
+- 変更しない変数は定数として扱う
+
+## 第III部 コードの再構成
+
+### 10. 無関係の下位問題を抽出する
+
+**エンジニアリングとは大きな問題を小さな問題に分解して、それぞれの解決策を組み立てること**
+
+#### 手順
+1. 関数やコードブロックを見てこの関数の目的は何か?と考える
+2. コードの中に目的に直接関係のない処理がないか? または無関係の下位問題を解決していないか?と考える
+3. 無関係の下位問題を解決しているコードがあれば抽出する
+
+### 11. 一度に1つのことを
+
+**コードは1つずつタスクを行うようにしなければいけない**
+
+#### 手順
+1. コードが行っている全てのタスクを列挙する
+2. タスクをできるだけ別の関数に分ける、少なくとも別のセクションに分ける
+
+#### 例: 読みやすい関数
+```python
+# 悪い例(複数の処理が混在)
+def ProcessData(data):
+    # バリデーション・整形・保存が混在
+    if not data:
+        return False
+    cleaned = data.strip().lower()
+    result = save_to_db(cleaned)
+    log_result(result)
+    return result
+
+# 良い例(処理ごとに分離)
+def ProcessData(data):
+    if not ValidateData(data):
+        return False
+
+    cleaned = CleanData(data)
+    result = SaveData(cleaned)
+    LogResult(result)
+    return result
+
+def ValidateData(data):
+    return data is not None
+
+def CleanData(data):
+    return data.strip().lower()
+
+def SaveData(data):
+    return save_to_db(data)
+
+def LogResult(result):
+    log_result(result)
+```
+
+## まとめ
+
+### 命名のチェックリスト
+- [ ] 明確で具体的な名前を使っているか?
+- [ ] 汎用的な名前(tmp, retvalなど)を避けているか?
+- [ ] 単位や重要な属性を名前に含めているか?
+- [ ] スコープに見合った長さの名前か?
+- [ ] 誤解されやすい表現のある名前でないか?
+- [ ] 上限値には max/min を使っているか?
+- [ ] 範囲には first/last または begin/end を使っているか?
+- [ ] ブール値には is/has/can/should を使っているか?
+- [ ] 否定形を避けているか?
+
+### コードの改善チェックリスト
+- [ ] 条件の並び順は自然か?(調べる値 ≧ 比較値)
+- [ ] if/else は肯定形が先、単純な処理が先になっているか?
+- [ ] 三項演算子はif/elseより適切か?
+- [ ] do/while を避けているか?
+- [ ] ガード節で早期リターンしているか?
+- [ ] 説明変数や要約変数で分割しているか?
+- [ ] 不要な一時変数を削減しているか?
+- [ ] 変数のスコープを縮めているか?
+- [ ] 無関係の下位問題を抽出しているか?
+- [ ] 1つの関数で1つのことだけ行っているか?

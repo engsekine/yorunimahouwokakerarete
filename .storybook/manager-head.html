@@ -1,0 +1,68 @@
+<link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="16x16 24x24 32x32 48x48 64x64 128x128 256x256">
+<style>
+    @namespace xlink url(http://www.w3.org/1999/xlink);
+
+    /* color-scheme プロパティを初期値に上書き */
+    #root > div {
+        color-scheme: normal;
+    }
+
+    /* パネル間のボーダー色 */
+    #root > div > div:has(nav) {
+        border-right-color: oklch(0.922 0 0);
+    }
+    #root > div > div:has(#storybook-panel-root) {
+        border-top-color: oklch(0.922 0 0);
+    }
+    [data-test-id='sb-preview-toolbar'] {
+        border-bottom: 1px solid oklch(0.922 0 0);
+        box-shadow: none !important;
+    }
+
+    /* 検索フィールド */
+    [role='combobox']:has(#storybook-explorer-searchfield) {
+        border: 1px solid oklch(0.922 0 0);
+        box-shadow: none;
+    }
+    [role='combobox']:has(#storybook-explorer-searchfield):has(input:focus) {
+        outline: 2px solid oklch(0.708 0 0);
+        outline-offset: 2px;
+    }
+    #storybook-explorer-searchfield:focus {
+        box-shadow: none;
+    }
+
+    /* 検索結果項目 */
+    .search-result-item[aria-selected='true']:not(:hover) {
+        outline: 1px solid oklch(0.708 0 0);
+    }
+
+    /* ツリー全体フォーカス時 */
+    #storybook-explorer-menu:focus-visible {
+        outline: 2px solid oklch(0.708 0 0);
+    }
+
+    /* Documents, Foundations, Components のトグル */
+    button[data-action='collapse-root']:focus-visible {
+        outline: 2px solid oklch(0.708 0 0);
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+
+    /* ツリーのアイコン（Documents=暖色、Story=寒色で識別性を保つ） */
+    svg:has(use[xlink|href='#icon--document']) {
+        color: oklch(0.65 0.15 50);
+    }
+    svg:has(use[xlink|href='#icon--story']) {
+        color: oklch(0.65 0.13 200);
+    }
+
+    /* Args テーブルのコントロール */
+    .docblock-argstable :focus:focus {
+        outline: 2px solid oklch(0.708 0 0) !important;
+        outline-offset: 2px !important;
+    }
+</style>
+<script>
+    document.documentElement.setAttribute('lang', 'ja');
+</script>

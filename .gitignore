@@ -1,0 +1,60 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# testing
+/coverage
+/coverage-e2e
+playwright-report
+test-results
+
+# next.js
+/.next/
+/.next-playwright/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+Thumbs.db
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Logs
+logs/
+*.log
+*storybook.log
+storybook-static
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Claude Code（個人設定・ログ・作業状態）
+**/.claude/settings.local.json
+.claude/logs/
+.claude/worktrees/
+
+# spec-kit: 作業中フィーチャーのポインタ（個人の作業状態）
+.specify/feature.json

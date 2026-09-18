@@ -1,0 +1,28 @@
+{
+    "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+    "version": "0.2",
+    "language": "en",
+    "words": [
+        "WCAG",
+        "ARIA",
+        "Nitrox",
+        "PADI",
+        "Supabase",
+        "TanStack",
+        "shadcn",
+        "Vitest",
+        "Storybook",
+        "Playwright",
+        "Biome",
+        "biomejs",
+        "ilike",
+        "timestamptz",
+        "jsonb",
+        "SAMEORIGIN",
+        "nosniff",
+        "speckit",
+        "SPECKIT",
+        "yorunimahouwokakerarete"
+    ],
+    "ignorePaths": ["node_modules/**", "package-lock.json", ".git/**", "dist/**", "build/**", ".next/**"]
+}

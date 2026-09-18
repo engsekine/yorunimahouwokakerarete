@@ -1,0 +1,115 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documents/はじめに" />
+
+<Unstyled>
+<div className="prose">
+
+# yorunimahouwokakerarete コンポーネントカタログ
+
+Instagram フォロワー管理アプリ **yorunimahouwokakerarete** で使われている UI コンポーネントのカタログです。デザインの整合性確認、a11y チェック、エッジケースの動作確認などに利用してください。
+
+## 技術スタック
+
+- **Next.js 16**（App Router / Server Components 前提）
+- **React 19** + React Compiler
+- **TypeScript**（strict + exactOptionalPropertyTypes）
+- **Tailwind CSS v4**（`@tailwindcss/vite` プラグイン経由）
+- **shadcn/ui** + Base UI（`src/components/ui/` に生成・ラッパー `src/shared/components/ui/` 経由で使用）
+- **Storybook 10**（`@storybook/nextjs-vite` フレームワーク）
+- **Vitest** + Playwright（ユニット / browser テスト）
+- **Biome**（lint / format）/ **markuplint**（マークアップ検査）
+
+## アーキテクチャ
+
+Feature-based 構成。詳細は `arch/feature-based.md` を参照。
+
+```
+src/
+├── app/              ルーティング（route group: (app) = 管理画面シェル配下）
+├── features/         機能単位のドメインロジック・UI
+└── shared/           複数 feature から使われる共通要素
+    ├── components/   汎用 UI（layout/Header, Breadcrumbs, Footer など）
+    ├── constants/    定数
+    └── config/       設定（generatePageMetadata など）
+```
+
+ドメイン横断で使う UI primitive（Button, Dialog, Breadcrumb 等）は shadcn の add コマンドで `src/components/ui/` に生成し、アプリからは **`src/shared/components/ui/<Name>/` のラッパー経由**で import します。
+
+## デザインシステム
+
+shadcn/ui のトークン体系を採用。`src/app/theme.css` の `:root` に `oklch()` ベースのセマンティックトークンが定義され、`@theme inline` で Tailwind utility（`bg-background`, `text-foreground`, `border-border` 等）に橋渡しされます。
+
+- **light / dark**: `.dark` クラスを祖先に付けると切替（`@custom-variant dark`）
+- **角丸スケール**: `--radius` を基準に `rounded-sm` 〜 `rounded-4xl` を生成
+- **フォント**: アプリ本体は `Geist`（`next/font/google` 経由）
+
+## コンポーネントの書き方
+
+### データはブラウザ保存（localStorage）から Client で読む
+
+本アプリはサーバー側に DB を持たないため、データ取得・更新は `'use client'` コンポーネント + TanStack Query で行う。ページ（`page.tsx`）は metadata と枠だけを担う Server Component に留める。
+
+### Story の配置
+
+コンポーネントと **同一ディレクトリに co-locate**：
+
+```
+src/shared/components/layout/Header/
+├── Header.tsx
+├── Header.stories.tsx
+└── index.ts
+```
+
+### Story の最小テンプレート
+
+```tsx
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { Header } from './Header';
+
+const meta = {
+    title: 'shared/layout/Header',
+    component: Header,
+    tags: ['autodocs'],
+    parameters: { layout: 'fullscreen' },
+} satisfies Meta<typeof Header>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {};
+```
+
+`tags: ['autodocs']` で Docs タブが自動生成されます。
+
+## ローカル実行
+
+```bash
+# Storybook 起動
+npm run storybook
+
+# ユニットテスト
+npm run test
+
+# Storybook テスト（play 関数経由）
+npm run test:storybook
+
+# Next.js dev サーバ
+npm run dev
+```
+
+## 検証済みブラウザ
+
+- Google Chrome 最新版
+- Microsoft Edge 最新版
+- Safari 最新版
+- Firefox 最新版
+
+## アクセシビリティ
+
+- ベースは **WCAG 2.1 レベル AA 準拠**を目標
+- `@storybook/addon-a11y` を有効化済み（各 story の "Accessibility" タブで違反確認可）
+- 共通規約は repo ルートの `.claude/rules/accessibility.md` に集約
+
+</div>
+</Unstyled>
