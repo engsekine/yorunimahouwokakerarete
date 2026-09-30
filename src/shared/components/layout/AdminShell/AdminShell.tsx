@@ -59,7 +59,9 @@ export const AdminShell = ({ defaultCollapsed, children }: AdminShellProps) => {
                     </SheetContent>
                 </Sheet>
 
-                <main className="flex-1 bg-background px-4 py-8 md:px-8">{children}</main>
+                {/* min-w-0: flex 子の既定 min-width:auto だと幅広テーブルの最小幅まで main が広がり、
+                    DataTable 側の overflow-x-auto が効かずページごと横にはみ出すため、縮められるようにする */}
+                <main className="min-w-0 flex-1 bg-background px-4 py-8 md:px-8">{children}</main>
             </div>
         </div>
     );

@@ -35,6 +35,14 @@ describe('DataTable', () => {
         expect(screen.getByRole('button', { name: '削除 alice' })).toBeInTheDocument();
     });
 
+    it('スクロール枠は relative + overflow-x-auto で、sr-only 見出しのはみ出しを枠内に閉じ込める', () => {
+        render(<DataTable columns={columns} rows={rows} getRowKey={(r) => r.id} emptyText="なし" />);
+
+        // 枠が非配置だと sr-only（position:absolute）見出しの座標がページ全体の横幅に加算され、
+        // 狭い画面でページごと横にはみ出す（回帰テスト）
+        expect(screen.getByRole('table').parentElement).toHaveClass('relative', 'overflow-x-auto');
+    });
+
     it('0 件のときは emptyText を表示しテーブルを描画しない', () => {
         render(<DataTable columns={columns} rows={[]} getRowKey={(r) => r.id} emptyText="まだありません" />);
         expect(screen.getByText('まだありません')).toBeInTheDocument();

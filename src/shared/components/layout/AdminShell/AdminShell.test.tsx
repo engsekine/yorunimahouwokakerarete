@@ -53,6 +53,19 @@ describe('AdminShell', () => {
         expect(document.cookie).toContain(`${SIDEBAR_COOKIE}=1`);
     });
 
+    it('main は横並び flex の子として縮められる（min-w-0）— 幅広テーブルでシェルが横にはみ出さない', () => {
+        setViewport(true);
+        render(
+            <AdminShell defaultCollapsed={false}>
+                <p>本文</p>
+            </AdminShell>,
+        );
+
+        // main の min-width が既定の auto のままだと、内側の overflow-x-auto より先に main 自体が
+        // テーブルの最小幅まで広がり、ページ全体が横にはみ出す（回帰テスト）
+        expect(screen.getByRole('main')).toHaveClass('min-w-0');
+    });
+
     it('defaultCollapsed=true でも children（main）を描画する', () => {
         setViewport(true);
         render(

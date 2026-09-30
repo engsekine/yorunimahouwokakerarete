@@ -18,7 +18,7 @@
 |---|---|---|
 | 上部管理バー | `<header>` | サイドバートグル（≡）・サイト名・ThemeToggle・user email・LogoutButton |
 | サイドバー | `<nav aria-label="管理メニュー">` | NAV_ITEMS・現在項目に `aria-current="page"`・折りたたみトグル |
-| メイン | `<main>` | ページ children。ページ側で PageHeader を先頭に置く |
+| メイン | `<main>` | ページ children。ページ側で PageHeader を先頭に置く。横並び flex の子として縮められるよう `min-w-0` を持ち、幅広の `DataTable` はシェルを押し広げずテーブル側で横スクロールする |
 
 - デスクトップ: サイドバー常設（折りたたみで幅可変・Cookie 保持）
 - モバイル: サイドバー非表示 → ≡ で Sheet として開く（選択で自動クローズ）。Sheet のタイトルはサイト名のみで、メニュー（先頭「ホーム」）の上に置く。右上の閉じるボタンと重ならないよう右に余白を取り、長いサイト名は折り返す

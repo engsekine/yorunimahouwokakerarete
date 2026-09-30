@@ -110,6 +110,8 @@ interface DataTableProps<T> {
     emptyText: string;                // 0 件時の案内
 }
 // <table> セマンティクス（thead/tbody/th scope="col"）。0 件は emptyText を表示
+// テーブルは relative + overflow-x-auto の枠で包み、幅が足りない画面ではテーブル側だけが横スクロールする
+// （sr-only 見出しは position:absolute のため、枠を relative にして枠外へはみ出さないようにする）
 ```
 
 ## レイアウト契約（配置ルール）

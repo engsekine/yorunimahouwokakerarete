@@ -25,7 +25,9 @@ export const DataTable = <T,>({ columns, rows, getRowKey, emptyText }: DataTable
     }
 
     return (
-        <div className="overflow-x-auto rounded-md border border-border">
+        // relative: sr-only 見出し（position:absolute）の包含ブロックをこのスクロール枠にする。
+        // 非配置のままだと絶対配置要素のはみ出しがスクロール枠を突き抜けてページ全体の横幅に加算される
+        <div className="relative overflow-x-auto rounded-md border border-border">
             <table className="w-full text-sm">
                 <thead className="border-border border-b bg-muted/50">
                     <tr>
