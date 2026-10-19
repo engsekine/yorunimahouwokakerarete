@@ -70,6 +70,8 @@ Vercel の Git 連携による **自動デプロイ** で運用する。`main` �
 
 Route Handler・Server Action は持たず、DB・秘密情報・永続ストレージも使わない。
 
+Vercel Functions（Server Component のレンダリング等）の実行リージョンは [vercel.json](vercel.json) の `regions` で **東京（`hnd1`）に固定**している。Vercel の既定は `iad1`（米国東部）で、ダッシュボードの Function Region 設定よりこのファイルが優先される。静的ファイルはリージョン指定に関係なく全リージョンの CDN から配信される。
+
 ## GitHub Actions
 
 | ワークフロー | トリガー | 内容 |
